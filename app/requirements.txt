@@ -2,3 +2,5 @@ fastapi
 sqlalchemy
 pydantic[email]
 passlib[bcrypt]
+python-jose
+python-multipart

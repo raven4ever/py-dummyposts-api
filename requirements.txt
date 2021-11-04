@@ -5,3 +5,5 @@ passlib[bcrypt]
 python-jose
 python-multipart
 alembic
+uvicorn[standard]
+psycopg2

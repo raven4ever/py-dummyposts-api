@@ -1,13 +1,31 @@
-version: "3"
+version: "3.9"
 
 services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_PASS: ${DB_PASS}
+      DB_USER: ${DB_USER}
+      DB_DBNAME: ${DB_DBNAME}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ALGORITHM: ${JWT_ALGORITHM}
+      JWT_TOKEN_EXPIRE_MIN: ${JWT_TOKEN_EXPIRE_MIN}
+    depends_on:
+      - postgres
+    command: bash -c "while !</dev/tcp/postgres/5432; do sleep 1; done; alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
   postgres:
     image: postgres
     restart: always
     environment:
-      POSTGRES_PASSWORD: example123
-      PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_DB: fastapi
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_DBNAME}
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     ports:
@@ -17,7 +35,7 @@ services:
     image: dpage/pgadmin4
     restart: always
     environment:
-      PGADMIN_DEFAULT_PASSWORD: example123
+      PGADMIN_DEFAULT_PASSWORD: ${DB_PASS}
       PGADMIN_DEFAULT_EMAIL: user@example.com
     ports:
       - 8080:80

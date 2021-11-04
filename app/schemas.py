@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, validator
 
 
 class UserCreate(BaseModel):
@@ -42,6 +42,14 @@ class PostResponse(PostBase):
         orm_mode = True
 
 
+class PostVotes(PostBase):
+    Post: PostResponse
+    votes: int
+
+    class Config:
+        orm_mode = True
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -49,3 +57,14 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     id: Optional[int] = None
+
+
+class Vote(BaseModel):
+    post_id: int
+    direction: int
+
+    @validator('direction')
+    def direction_must_be_binary(cls, v):
+        if v not in (0, 1):
+            raise ValueError('must be 0 or 1')
+        return v
